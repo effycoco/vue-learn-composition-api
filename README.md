@@ -1,4 +1,4 @@
-来自 vue udemy course section 19 & 20
+来自 [Vue Udemy Course](https://www.udemy.com/course/vuejs-2-the-complete-guide/learn/) section 19 & 20
 
-- step 1 mirgrate from option API to composition API
-- step 2 use custom hooks
+- Step 1. Mirgrate from option API to composition API
+- Step 2. Use custom hooks
