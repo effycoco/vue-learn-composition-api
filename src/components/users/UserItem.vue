@@ -6,11 +6,10 @@
 </template>
 
 <script setup>
-import { inject } from 'vue';
+import { inject, defineProps } from 'vue';
 const props = defineProps(['id', 'userName']);
 const selectUser = inject('selectUser');
 function viewProjects() {
-  console.log(selectUser);
   selectUser(props.id);
 }
 </script>

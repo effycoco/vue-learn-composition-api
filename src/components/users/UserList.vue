@@ -26,55 +26,44 @@
 
 <script setup>
 import UserItem from './UserItem.vue';
-import { computed, ref, watch, defineProps } from 'vue';
+import { toRefs, defineProps } from 'vue';
+import useSearch from '@/hooks/search';
+import useSort from '@/hooks/sort';
+
 const props = defineProps(['users']);
+// props.users： not ref, is proxy，reactive，不需要.value
+const { users } = toRefs(props);
+// after toRefs, props.users: is ref, contain a  property which is proxy, reactive, 需要.value
+const {
+  availableItems: availableUsers,
+  updateSearch,
+  enteredSearchTerm,
+} = useSearch(users, 'fullName');
 
-const enteredSearchTerm = ref('');
-function updateSearch(val) {
-  enteredSearchTerm.value = val;
-}
-
-const activeSearchTerm = ref('');
-watch(enteredSearchTerm, (val) => {
-  setTimeout(() => {
-    if (val === enteredSearchTerm.value) {
-      activeSearchTerm.value = val;
-    }
-  }, 300);
-});
-
-const availableUsers = computed(() => {
-  let users = [];
-  if (activeSearchTerm.value) {
-    users = props.users.filter((usr) =>
-      usr.fullName.includes(activeSearchTerm.value)
-    );
-  } else if (props.users) {
-    users = props.users;
-  }
-  return users;
-});
-
-const sorting = ref(null);
-function sort(mode) {
-  sorting.value = mode;
-}
-const displayedUsers = computed(() => {
-  if (!sorting.value) {
-    return availableUsers.value;
-  }
-  return availableUsers.value.slice().sort((u1, u2) => {
-    if (sorting.value === 'asc' && u1.fullName > u2.fullName) {
-      return 1;
-    } else if (sorting.value === 'asc') {
-      return -1;
-    } else if (sorting.value === 'desc' && u1.fullName > u2.fullName) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
-});
+console.log('props.users', props.users); // array
+console.log('toRefs(props).users', users); // objectRef
+console.log('toRefs(props).users.value', users.value); //array
+const { sort, sorting, displayedUsers } = useSort(availableUsers);
+// const sorting = ref(null);
+// function sort(mode) {
+//   sorting.value = mode;
+// }
+// const displayedUsers = computed(() => {
+//   if (!sorting.value) {
+//     return availableUsers.value;
+//   }
+//   return availableUsers.value.slice().sort((u1, u2) => {
+//     if (sorting.value === 'asc' && u1.fullName > u2.fullName) {
+//       return 1;
+//     } else if (sorting.value === 'asc') {
+//       return -1;
+//     } else if (sorting.value === 'desc' && u1.fullName > u2.fullName) {
+//       return -1;
+//     } else {
+//       return 1;
+//     }
+//   });
+// });
 </script>
 
 <style scoped>

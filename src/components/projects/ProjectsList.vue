@@ -21,46 +21,39 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed, watch } from 'vue';
+import { defineProps, computed, watch } from 'vue';
 import ProjectItem from './ProjectItem.vue';
+import useSearch from '@/hooks/search';
 
 const props = defineProps(['user']);
+// props.users： not ref, is proxy，reactive，不需要.value,
+// props.users.projects: hard coded snapshot, not reactive, we need it to be reactive
+// const { user } = toRefs(props);
+// after toRefs, props.users: is ref, reactive, 需要.value
+// users'property is proxy
+const projects = computed(() => (props.user ? props.user.projects : []));
+const {
+  availableItems: availableProjects,
+  updateSearch,
+  enteredSearchTerm,
+} = useSearch(projects, 'title');
 
-const enteredSearchTerm = ref('');
-function updateSearch(val) {
-  enteredSearchTerm.value = val;
-}
 watch(
   () => props.user,
   () => {
-    enteredSearchTerm.value = '';
+    updateSearch('');
+    // console.log('toRefs(props).user', user); // objectRef
+    // console.log('toRefs(props).user.value', user.value); // Proxy
+    console.log('props.user', props.user); // Proxy
+    // 传递给useSearch的第一个参数必须具有响应性，props.user有，但props.user.projects没有
+    // props.user有，那根据props.user计算出来的projects也有
+    // user.value有，那根据user.value计算出来的projects也有
   }
 );
-
-const activeSearchTerm = ref('');
-
-watch(enteredSearchTerm, (val) => {
-  setTimeout(() => {
-    if (val === enteredSearchTerm.value) {
-      activeSearchTerm.value = val;
-    }
-  }, 300);
-});
-
-const availableProjects = computed(() => {
-  if (activeSearchTerm.value) {
-    return props.user.projects.filter((prj) =>
-      prj.title.includes(activeSearchTerm.value)
-    );
-  }
-  return props.user.projects;
-});
 
 const hasProjects = computed(
   () => props.user.projects && availableProjects.value.length > 0
 );
-// 在脚本中使用props 不需要加.value
-// 在脚本中使用ref和computedRef, 需要加.value
 </script>
 
 <style scoped>
